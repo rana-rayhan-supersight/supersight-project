@@ -9,7 +9,7 @@ import {
 const AppDataSource = new DataSource({
   type: "postgres",
   host: supersight_db_host,
-  port: 5050,
+  port: 5432,
   username: "postgres",
   password: supersight_db_password_v1,
   database: supersight_db_v1,
