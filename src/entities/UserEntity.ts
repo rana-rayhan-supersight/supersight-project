@@ -2,10 +2,12 @@ import {
   BeforeInsert,
   BeforeUpdate,
   Column,
+  CreateDateColumn,
   Entity,
   OneToMany,
   PrimaryColumn,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from "typeorm";
 import bcrypt from "bcryptjs";
 import { UserRole } from "./UserRole";
@@ -17,14 +19,26 @@ export class UserEntity {
   @PrimaryColumn()
   id: string;
 
-  @Column()
+  @Column({ nullable: true })
   firstName: string;
-  @Column()
+
+  @Column({ nullable: true })
   lastName: string;
-  @Column()
+
+  @Column({ unique: true })
   email: string;
+
   @Column()
   password: string;
+
+  @Column({ default: false })
+  confirmationStatus: boolean;
+
+  @CreateDateColumn({ type: "timestamp" })
+  createdAt: Date;
+
+  @UpdateDateColumn({ type: "timestamp" })
+  updatedAt: Date;
 
   @Column({
     type: "enum",
@@ -44,7 +58,7 @@ export class UserEntity {
   @BeforeUpdate()
   async bcryptPass() {
     if (this.password) {
-      await bcrypt.hash(this.password, 10);
+      this.password = await bcrypt.hash(this.password, 10);
     }
   }
 }

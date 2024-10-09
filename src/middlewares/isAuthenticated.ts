@@ -2,6 +2,8 @@ import { Request, Response, NextFunction } from "express";
 import createError from "http-errors";
 import { awsCognitoJwtVerifier } from "../secrect";
 import { CustomRequest } from "../glogalTypes";
+import { findUserById } from "../helpers/entityFindHelper";
+import { UserRole } from "../entities/UserRole";
 
 // login module
 const isLoggedIn = async (
@@ -20,7 +22,8 @@ const isLoggedIn = async (
     }
 
     // Assuming your token has a 'sub' field representing the user ID
-    req.userId = decoded.sub;
+    const user = await findUserById(decoded.sub);
+    req.user = user;
     next();
   } catch (error) {
     return next(error);
@@ -51,23 +54,23 @@ const isLoggedOut = async (req: Request, res: Response, next: NextFunction) => {
 };
 
 // admin check module
-// const isAdmin = async (
-//   req: CustomRequest,
-//   res: Response,
-//   next: NextFunction
-// ) => {
-//   try {
-//     if (!req.user || !req.user.isAdmin) {
-//       throw createError(
-//         403,
-//         "Request forbidden. You must be an admin to access this resource"
-//       );
-//     }
+const isAdmin = async (
+  req: CustomRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    if (!req.user || req.user.role !== UserRole.ADMIN) {
+      throw createError(
+        403,
+        "Request forbidden. You must be an admin to access!"
+      );
+    }
 
-//     next();
-//   } catch (error) {
-//     return next(error);
-//   }
-// };
+    next();
+  } catch (error) {
+    return next(error);
+  }
+};
 
-export { isLoggedIn, isLoggedOut };
+export { isLoggedIn, isLoggedOut, isAdmin };

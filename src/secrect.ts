@@ -1,6 +1,8 @@
 import { CognitoIdentityProviderClient } from "@aws-sdk/client-cognito-identity-provider";
 import { CognitoJwtVerifier } from "aws-jwt-verify";
 import { config } from "dotenv";
+import { fromEnv } from "@aws-sdk/credential-provider-env"; // Import fromEnv
+
 config();
 
 // server port ---***
@@ -13,11 +15,15 @@ const supersight_db_password_v1 = process.env.SUPERSIGHT_DB_PASSWORD_V1;
 
 // AWS props ---***
 const awsClientId: string = process.env.AWS_CLIENT_ID!;
+const userPoolId = process.env.USER_POOL_ID!;
+
 const awsClientProvider = new CognitoIdentityProviderClient({
   region: process.env.AWS_CLIENT_REGION,
+  credentials: fromEnv(),
 });
+
 const awsCognitoJwtVerifier = CognitoJwtVerifier.create({
-  userPoolId: "eu-north-1_jfeOn0x4A",
+  userPoolId: userPoolId,
   tokenUse: "access",
   clientId: awsClientId,
 });
@@ -30,4 +36,5 @@ export {
   awsClientProvider,
   awsClientId,
   awsCognitoJwtVerifier,
+  userPoolId,
 };
